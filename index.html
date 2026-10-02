@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a1a">
+<title>致 孙晓丽</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  :root {
+    --primary: #ff6b9d;
+    --secondary: #c44dff;
+    --accent: #6bcaff;
+    --warm: #ffd93d;
+    --dark: #0a0a1a;
+    --dark-2: #14142e;
+    --glass: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+  }
+  
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--dark);
+    color: #fff;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    min-height: 100vh;
+    position: relative;
+  }
+  
+  /* 粒子背景画布 */
+  #particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  /* 渐变光晕背景 */
+  .bg-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  
+  .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 8s ease-in-out infinite;
+  }
+  
+  .glow-orb:nth-child(1) {
+    width: 300px; height: 300px;
+    background: var(--primary);
+    top: -100px; right: -100px;
+    animation-delay: 0s;
+  }
+  
+  .glow-orb:nth-child(2) {
+    width: 250px; height: 250px;
+    background: var(--secondary);
+    bottom: 20%; left: -80px;
+    animation-delay: -3s;
+  }
+  
+  .glow-orb:nth-child(3) {
+    width: 200px; height: 200px;
+    background: var(--accent);
+    top: 40%; right: 10%;
+    animation-delay: -5s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+  
+  /* 主内容容器 */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  /* 首屏 */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  
+  .hero-subtitle {
+    font-size: 14px;
+    letter-spacing: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeInUp 1s ease 0.3s forwards;
+    text-transform: uppercase;
+  }
+  
+  .hero-title {
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeInUp 1s ease 0.6s forwards;
+  }
+  
+  .hero-title .name {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
+  
+  .hero-desc {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.8;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeInUp 1s ease 0.9s forwards;
+    max-width: 320px;
+  }
+  
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.5s forwards;
+  }
+  
+  .scroll-hint span {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+  }
+  
+  .scroll-arrow {
+    width: 24px;
+    height: 24px;
+    border-right: 2px solid rgba(255, 255, 255, 0.4);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    transform: rotate(45deg);
+    animation: scrollBounce 2s ease-in-out infinite;
+  }
+  
+  @keyframes scrollBounce {
+    0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.4; }
+    50% { transform: rotate(45deg) translate(6px, 6px); opacity: 1; }
+  }
+  
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* 玻璃卡片 */
+  .glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px 24px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .glass-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  }
+  
+  .card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(196, 77, 255, 0.2));
+    border: 1px solid rgba(255, 107, 157, 0.3);
+  }
+  
+  .card-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .card-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  /* 时间线 */
+  .timeline-section {
+    padding: 60px 0;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+  }
+  
+  .section-title.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .section-title span {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
+  
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+    opacity: 0.3;
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 32px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.6s ease;
+  }
+  
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+  }
+  
+  .timeline-date {
+    font-size: 13px;
+    color: var(--primary);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  
+  .timeline-content {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  /* 心动计数器 */
+  .heart-section {
+    text-align: center;
+    padding: 60px 0;
+  }
+  
+  .heart-display {
+    font-size: 64px;
+    margin-bottom: 16px;
+    animation: heartbeat 1.2s ease-in-out infinite;
+    cursor: pointer;
+    display: inline-block;
+    user-select: none;
+    transition: transform 0.2s ease;
+  }
+  
+  .heart-display:active {
+    transform: scale(1.3);
+  }
+  
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    60% { transform: scale(1); }
+  }
+  
+  .heart-count {
+    font-size: 48px;
+    font-weight: 200;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  
+  .heart-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 4px;
+  }
+  
+  .heart-tip {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 12px;
+  }
+  
+  /* 特质卡片网格 */
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  
+  .reason-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  
+  .reason-item.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .reason-item:active {
+    transform: scale(0.95);
+    background: rgba(255, 107, 157, 0.1);
+    border-color: rgba(255, 107, 157, 0.3);
+  }
+  
+  .reason-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  
+  .reason-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  /* 最终告白 */
+  .confession-section {
+    padding: 80px 0 40px;
+    text-align: center;
+  }
+  
+  .confession-card {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(196, 77, 255, 0.1));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 107, 157, 0.2);
+    border-radius: 32px;
+    padding: 48px 32px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .confession-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .confession-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(255, 107, 157, 0.1), transparent 30%);
+    animation: rotate 8s linear infinite;
+  }
+  
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .confession-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .confession-title {
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+  
+  .confession-title .highlight {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+  }
+  
+  .confession-text {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 32px;
+    text-align: left;
+  }
+  
+  .confession-text p {
+    margin-bottom: 16px;
+  }
+  
+  .confession-text p:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* 按钮组 */
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    padding: 14px 32px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(255, 107, 157, 0.4);
+  }
+  
+  .btn-primary:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+  }
+  
+  .btn-secondary {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .btn-secondary:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* 成功页 */
+  .success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  
+  .success-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  
+  .success-hearts {
+    font-size: 80px;
+    margin-bottom: 24px;
+    animation: successPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  @keyframes successPop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  .success-title {
+    font-size: 32px;
+    font-weight: 300;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .success-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 320px;
+    margin-bottom: 32px;
+  }
+  
+  /* 签名 */
+  .signature {
+    text-align: right;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .signature .from {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 4px;
+  }
+  
+  .signature .name {
+    font-size: 20px;
+    font-weight: 300;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-style: italic;
+  }
+  
+  .signature .date {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 4px;
+  }
+  
+  /* 飘落的爱心 */
+  .floating-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 50;
+    font-size: 24px;
+    animation: floatUp 3s ease-out forwards;
+  }
+  
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-200px) scale(0.5);
+    }
+  }
+  
+  /* 底部 */
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  footer .made-with {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  footer .heart-mini {
+    color: var(--primary);
+    animation: heartbeat 1.2s ease-in-out infinite;
+    display: inline-block;
+  }
+  
+  /* 响应式优化 */
+  @media (max-width: 360px) {
+    .hero-title { font-size: 40px; }
+    .confession-card { padding: 36px 24px; }
+    .reasons-grid { gap: 8px; }
+    .reason-item { padding: 12px 8px; }
+  }
+  
+  @media (min-width: 768px) {
+    .container { max-width: 520px; }
+    .hero-title { font-size: 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景光晕 -->
+<div class="bg-glow">
+  <div class="glow-orb"></div>
+  <div class="glow-orb"></div>
+  <div class="glow-orb"></div>
+</div>
+
+<!-- 粒子画布 -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- 主内容 -->
+<div class="container">
+  
+  <!-- 首屏 -->
+  <section class="hero">
+    <div class="hero-subtitle">FOR SOMEONE SPECIAL</div>
+    <h1 class="hero-title">
+      致 <span class="name">孙晓丽</span>
+    </h1>
+    <p class="hero-desc">
+      有些话，藏了很久<br>
+      今天，想全部说给你听
+    </p>
+    <div class="scroll-hint">
+      <span>向下滑动</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+  
+  <!-- 第一张卡片 -->
+  <section class="glass-card" data-animate>
+    <div class="card-icon">✨</div>
+    <h2 class="card-title">遇见你的那一刻</h2>
+    <p class="card-text">
+      我不知道该怎么形容那种感觉，<br>
+      就像是漫长的黑夜里，<br>
+      突然有人点亮了一盏灯。<br><br>
+      而你，就是那盏灯。
+    </p>
+  </section>
+  
+  <!-- 第二张卡片 -->
+  <section class="glass-card" data-animate>
+    <div class="card-icon">💭</div>
+    <h2 class="card-title">我喜欢你的理由</h2>
+    <p class="card-text">其实有很多很多，多到数不清——</p>
+    <div class="reasons-grid">
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">😊</div>
+        <div class="reason-text">你的笑容</div>
+      </div>
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">👀</div>
+        <div class="reason-text">你的眼睛</div>
+      </div>
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">🎵</div>
+        <div class="reason-text">你的声音</div>
+      </div>
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">💫</div>
+        <div class="reason-text">你的认真</div>
+      </div>
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">🌙</div>
+        <div class="reason-text">你的温柔</div>
+      </div>
+      <div class="reason-item" data-animate>
+        <div class="reason-emoji">🌈</div>
+        <div class="reason-text">你的全部</div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 时间线 -->
+  <section class="timeline-section">
+    <h2 class="section-title" data-animate>我们的 <span>小故事</span></h2>
+    <div class="timeline">
+      <div class="timeline-item" data-animate>
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">初次相遇</div>
+        <div class="timeline-content">第一次见到你，心跳漏了一拍。那天的风很轻，你笑起来很好看。</div>
+      </div>
+      <div class="timeline-item" data-animate>
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">慢慢熟悉</div>
+        <div class="timeline-content">我们开始聊天，开始分享彼此的生活。每一句晚安，都让我更加期待明天。</div>
+      </div>
+      <div class="timeline-item" data-animate>
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">心动时刻</div>
+        <div class="timeline-content">某个瞬间我突然意识到——不只是喜欢，是真的很喜欢很喜欢你。</div>
+      </div>
+      <div class="timeline-item" data-animate>
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">今天</div>
+        <div class="timeline-content">我鼓起勇气，想认真地告诉你：孙晓丽，我喜欢你。</div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 心动计数器 -->
+  <section class="heart-section" data-animate>
+    <div class="heart-display" id="heartBtn">❤️</div>
+    <div class="heart-count" id="heartCount">0</div>
+    <div class="heart-label">次心动</div>
+    <div class="heart-tip">点击爱心，每一下都是我的心跳</div>
+  </section>
+  
+  <!-- 告白卡片 -->
+  <section class="confession-section">
+    <div class="confession-card" data-animate>
+      <div class="confession-content">
+        <h2 class="confession-title">
+          孙晓丽，<br>
+          做我的<span class="highlight">女朋友</span>好吗？
+        </h2>
+        <div class="confession-text">
+          <p>我不是一个很会说话的人，</p>
+          <p>但遇见你之后，<br>我想把所有的温柔都给你。</p>
+          <p>我想和你一起看日出日落，<br>想和你一起走过春夏秋冬，<br>想成为你难过时第一个想到的人。</p>
+          <p>未来的路还很长，<br>我希望——<br>能有你陪我一起走。</p>
+        </div>
+        <div class="signature">
+          <div class="from">来自</div>
+          <div class="name">刘凯凯</div>
+          <div class="date">2026年10月</div>
+        </div>
+        <div class="btn-group" style="margin-top: 32px;">
+          <button class="btn btn-primary" id="yesBtn">我愿意 💕</button>
+          <button class="btn btn-secondary" id="noBtn">让我想想…</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="made-with">
+      Made with <span class="heart-mini">❤</span> by 刘凯凯
+    </div>
+  </footer>
+</div>
+
+<!-- 成功弹窗 -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-hearts">💖</div>
+  <h2 class="success-title">太好了！</h2>
+  <p class="success-text">
+    从今天起，<br>
+    你是我的女朋友，我是你的男朋友。<br><br>
+    以后的路，我们一起走。<br>
+    我会好好爱你，珍惜你。<br><br>
+    —— 永远爱你的 刘凯凯
+  </p>
+  <button class="btn btn-primary" onclick="closeSuccess()">❤️</button>
+</div>
+
+<script>
+  // 粒子背景
+  const canvas = document.getElementById('particles-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.5 + 0.1;
+      this.hue = Math.random() > 0.5 ? 340 : 280; // 粉色或紫色
+    }
+    
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      
+      if (this.x < 0 || this.x > canvas.width || 
+          this.y < 0 || this.y > canvas.height) {
+        this.reset();
+      }
+    }
+    
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${this.opacity})`;
+      ctx.fill();
+    }
+  }
+  
+  // 创建粒子
+  const particleCount = Math.min(60, Math.floor(window.innerWidth / 8));
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new Particle());
+  }
+  
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    
+    // 连线
+    particles.forEach((p1, i) => {
+      particles.slice(i + 1).forEach(p2 => {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          const opacity = (1 - dist / 100) * 0.15;
+          ctx.strokeStyle = `rgba(255, 107, 157, ${opacity})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
+    });
+    
+    requestAnimationFrame(animateParticles);
+  }
+  
+  animateParticles();
+  
+  // 滚动动画
+  const observerOptions = {
+    threshold: 0.15,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        
+        // 子元素延迟动画
+        const children = entry.target.querySelectorAll('[data-animate]');
+        children.forEach((child, index) => {
+          setTimeout(() => {
+            child.classList.add('visible');
+          }, index * 100);
+        });
+      }
+    });
+  }, observerOptions);
+  
+  document.querySelectorAll('[data-animate]').forEach(el => {
+    observer.observe(el);
+  });
+  
+  // 心动计数器
+  const heartBtn = document.getElementById('heartBtn');
+  const heartCount = document.getElementById('heartCount');
+  let count = 0;
+  let storedCount = localStorage.getItem('heartCount');
+  if (storedCount) {
+    count = parseInt(storedCount);
+    heartCount.textContent = count;
+  }
+  
+  heartBtn.addEventListener('click', (e) => {
+    count++;
+    heartCount.textContent = count;
+    localStorage.setItem('heartCount', count);
+    
+    // 爱心飞出效果
+    createFloatingHeart(e.clientX, e.clientY);
+    
+    // 震动反馈（移动端）
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+  });
+  
+  function createFloatingHeart(x, y) {
+    const hearts = ['❤️', '💕', '💖', '💗', '💓', '💝'];
+    const heart = document.createElement('div');
+    heart.className = 'floating-heart';
+    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    heart.style.left = (x - 12 + (Math.random() - 0.5) * 40) + 'px';
+    heart.style.top = (y - 20) + 'px';
+    heart.style.fontSize = (20 + Math.random() * 16) + 'px';
+    document.body.appendChild(heart);
+    
+    setTimeout(() => heart.remove(), 3000);
+  }
+  
+  // 按钮交互
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const successOverlay = document.getElementById('successOverlay');
+  
+  yesBtn.addEventListener('click', () => {
+    successOverlay.classList.add('active');
+    
+    // 放很多爱心
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        createFloatingHeart(
+          Math.random() * window.innerWidth,
+          window.innerHeight
+        );
+      }, i * 100);
+    }
+    
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100, 50, 200]);
+    }
+  });
+  
+  // "让我想想"按钮 - 会逃跑
+  let noBtnEscapeCount = 0;
+  noBtn.addEventListener('mouseenter', escapeNoBtn);
+  noBtn.addEventListener('touchstart', escapeNoBtn);
+  noBtn.addEventListener('click', escapeNoBtn);
+  
+  function escapeNoBtn(e) {
+    if (e) e.preventDefault();
+    noBtnEscapeCount++;
+    
+    if (noBtnEscapeCount >= 5) {
+      noBtn.textContent = '我知道你愿意的 😉';
+      setTimeout(() => {
+        noBtn.style.display = 'none';
+      }, 1500);
+      return;
+    }
+    
+    const texts = ['再想想？', '真的吗？', '确定吗？', '不要嘛~', '我知道你愿意的 😉'];
+    noBtn.textContent = texts[Math.min(noBtnEscapeCount - 1, texts.length - 1)];
+    
+    // 随机移动
+    const maxX = window.innerWidth - noBtn.offsetWidth - 40;
+    const maxY = 200;
+    const randomX = Math.random() * maxX - maxX / 2;
+    const randomY = Math.random() * maxY - maxY / 2;
+    
+    noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    noBtn.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+  }
+  
+  function closeSuccess() {
+    successOverlay.classList.remove('active');
+  }
+  
+  // 触摸滑动提示隐藏
+  let startY = 0;
+  document.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  
+  document.addEventListener('touchmove', (e) => {
+    const currentY = e.touches[0].clientY;
+    const diff = startY - currentY;
+    if (diff > 50) {
+      const hint = document.querySelector('.scroll-hint');
+      if (hint) hint.style.opacity = '0';
+    }
+  }, { passive: true });
+</script>
+
+</body>
+</html>
