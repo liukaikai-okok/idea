@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0a0a1a">
-<title>致 孙晓丽</title>
+<title>致 孙晓丽 ✨</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
@@ -14,6 +14,8 @@
     --secondary: #c44dff;
     --accent: #6bcaff;
     --warm: #ffd93d;
+    --orange: #ff9f43;
+    --green: #26de81;
     --dark: #0a0a1a;
     --dark-2: #14142e;
     --glass: rgba(255, 255, 255, 0.08);
@@ -27,11 +29,53 @@
     background: var(--dark);
     color: #fff;
     scroll-behavior: smooth;
+    cursor: none;
+  }
+  
+  @media (max-width: 768px) {
+    html, body { cursor: auto; }
   }
   
   body {
     min-height: 100vh;
     position: relative;
+  }
+  
+  /* 自定义光标 */
+  .custom-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: screen;
+  }
+  
+  .custom-cursor.hover {
+    width: 50px;
+    height: 50px;
+    border-color: var(--secondary);
+    background: rgba(196, 77, 255, 0.1);
+  }
+  
+  .cursor-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px var(--primary);
+  }
+  
+  @media (max-width: 768px) {
+    .custom-cursor, .cursor-dot { display: none; }
   }
   
   /* 粒子背景画布 */
@@ -43,6 +87,18 @@
     height: 100%;
     z-index: 0;
     pointer-events: none;
+  }
+  
+  /* 烟花画布 */
+  #fireworks-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.8;
   }
   
   /* 渐变光晕背景 */
@@ -86,6 +142,14 @@
     animation-delay: -5s;
   }
   
+  .glow-orb:nth-child(4) {
+    width: 180px; height: 180px;
+    background: var(--warm);
+    bottom: 10%; right: 30%;
+    animation-delay: -7s;
+    opacity: 0.25;
+  }
+  
   @keyframes float {
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(30px, -30px) scale(1.1); }
@@ -95,7 +159,7 @@
   /* 主内容容器 */
   .container {
     position: relative;
-    z-index: 1;
+    z-index: 5;
     max-width: 480px;
     margin: 0 auto;
     padding: 20px;
@@ -111,6 +175,7 @@
     align-items: center;
     text-align: center;
     padding: 40px 20px;
+    position: relative;
   }
   
   .hero-subtitle {
@@ -133,11 +198,26 @@
   }
   
   .hero-title .name {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, 
+      var(--primary), var(--secondary), var(--accent), 
+      var(--warm), var(--primary));
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 600;
+    animation: gradientShift 4s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+  }
+  
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 10px rgba(255, 107, 157, 0.3)); }
+    to { filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.6)) drop-shadow(0 0 60px rgba(196, 77, 255, 0.4)); }
   }
   
   .hero-desc {
@@ -222,6 +302,18 @@
     right: 0;
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  
+  @keyframes shimmer {
+    0%, 100% { opacity: 0.5; transform: translateX(-100%); }
+    50% { opacity: 1; transform: translateX(100%); }
+  }
+  
+  .glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+    border-color: rgba(255, 107, 157, 0.3);
   }
   
   .card-icon {
@@ -235,6 +327,29 @@
     margin-bottom: 20px;
     background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(196, 77, 255, 0.2));
     border: 1px solid rgba(255, 107, 157, 0.3);
+    position: relative;
+    animation: iconFloat 3s ease-in-out infinite;
+  }
+  
+  .card-icon::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    opacity: 0;
+    filter: blur(15px);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+  
+  .glass-card:hover .card-icon::after {
+    opacity: 0.5;
+  }
+  
+  @keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
   
   .card-title {
@@ -251,6 +366,160 @@
     font-size: 15px;
     line-height: 1.8;
     color: rgba(255, 255, 255, 0.7);
+  }
+  
+  /* 照片轮播 - 苹果风格 */
+  .gallery-section {
+    padding: 60px 0 40px;
+    text-align: center;
+  }
+  
+  .carousel {
+    position: relative;
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: -20px;
+  }
+  
+  .gallery-section.visible .carousel {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .carousel-track {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+  }
+  
+  .carousel-slide {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+  }
+  
+  .photo-frame {
+    width: 100%;
+    aspect-ratio: 4/5;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 107, 157, 0.1);
+    position: relative;
+  }
+  
+  .photo-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.2), transparent 40%);
+    pointer-events: none;
+  }
+  
+  .carousel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  
+  .carousel-slide:hover .carousel-img {
+    transform: scale(1.02);
+  }
+  
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    opacity: 0;
+  }
+  
+  .carousel:hover .carousel-btn {
+    opacity: 1;
+  }
+  
+  .carousel-btn:hover {
+    background: rgba(255, 107, 157, 0.4);
+    border-color: rgba(255, 107, 157, 0.6);
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .carousel-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  
+  .carousel-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .carousel-prev {
+    left: 12px;
+  }
+  
+  .carousel-next {
+    right: 12px;
+  }
+  
+  .carousel-dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+  
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+  }
+  
+  .dot.active {
+    width: 20px;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  
+  .gallery-hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 16px;
+    letter-spacing: 2px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  @media (max-width: 768px) {
+    .carousel-btn { display: none; }
   }
   
   /* 时间线 */
@@ -274,11 +543,13 @@
   }
   
   .section-title span {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 600;
+    animation: gradientShift 3s ease-in-out infinite;
   }
   
   .timeline {
@@ -293,7 +564,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+    background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent), var(--warm));
     opacity: 0.3;
   }
   
@@ -319,6 +590,12 @@
     border-radius: 50%;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 157, 0.5); transform: scale(1); }
+    50% { box-shadow: 0 0 25px rgba(255, 107, 157, 0.8), 0 0 50px rgba(196, 77, 255, 0.4); transform: scale(1.1); }
   }
   
   .timeline-date {
@@ -338,26 +615,50 @@
     font-size: 14px;
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+  }
+  
+  .timeline-content:hover {
+    border-color: rgba(255, 107, 157, 0.3);
+    transform: translateX(5px);
   }
   
   /* 心动计数器 */
   .heart-section {
     text-align: center;
     padding: 60px 0;
+    position: relative;
   }
   
   .heart-display {
     font-size: 64px;
     margin-bottom: 16px;
     animation: heartbeat 1.2s ease-in-out infinite;
-    cursor: pointer;
+    cursor: none;
     display: inline-block;
     user-select: none;
     transition: transform 0.2s ease;
+    filter: drop-shadow(0 0 20px rgba(255, 107, 157, 0.5));
+    position: relative;
   }
   
   .heart-display:active {
-    transform: scale(1.3);
+    transform: scale(1.5);
+  }
+  
+  .heart-display::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.3), transparent 70%);
+    filter: blur(20px);
+    z-index: -1;
+    animation: heartGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes heartGlow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
   }
   
   @keyframes heartbeat {
@@ -371,11 +672,13 @@
   .heart-count {
     font-size: 48px;
     font-weight: 200;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+    background-size: 200% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 8px;
+    animation: gradientShift 2s ease-in-out infinite;
   }
   
   .heart-label {
@@ -388,6 +691,12 @@
     font-size: 12px;
     color: rgba(255, 255, 255, 0.3);
     margin-top: 12px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
   }
   
   /* 特质卡片网格 */
@@ -404,9 +713,12 @@
     border-radius: 16px;
     padding: 16px 12px;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     opacity: 0;
     transform: scale(0.9);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
   
   .reason-item.visible {
@@ -414,15 +726,36 @@
     transform: scale(1);
   }
   
-  .reason-item:active {
-    transform: scale(0.95);
+  .reason-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .reason-item:hover::before {
+    left: 100%;
+  }
+  
+  .reason-item:active, .reason-item:hover {
+    transform: scale(1.05) translateY(-3px);
     background: rgba(255, 107, 157, 0.1);
-    border-color: rgba(255, 107, 157, 0.3);
+    border-color: rgba(255, 107, 157, 0.4);
+    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.2);
   }
   
   .reason-emoji {
     font-size: 32px;
     margin-bottom: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  .reason-item:hover .reason-emoji {
+    transform: scale(1.2);
   }
   
   .reason-text {
@@ -462,8 +795,13 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: conic-gradient(from 0deg, transparent, rgba(255, 107, 157, 0.1), transparent 30%);
-    animation: rotate 8s linear infinite;
+    background: conic-gradient(from 0deg, 
+      transparent, 
+      rgba(255, 107, 157, 0.15), 
+      rgba(196, 77, 255, 0.15), 
+      rgba(107, 202, 255, 0.15),
+      transparent 40%);
+    animation: rotate 6s linear infinite;
   }
   
   @keyframes rotate {
@@ -484,11 +822,13 @@
   }
   
   .confession-title .highlight {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--warm), var(--primary));
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 600;
+    animation: gradientShift 3s ease-in-out infinite;
   }
   
   .confession-text {
@@ -532,6 +872,12 @@
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: #fff;
     box-shadow: 0 8px 32px rgba(255, 107, 157, 0.4);
+    animation: btnGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes btnGlow {
+    0%, 100% { box-shadow: 0 8px 32px rgba(255, 107, 157, 0.4); }
+    50% { box-shadow: 0 8px 32px rgba(255, 107, 157, 0.6), 0 0 40px rgba(196, 77, 255, 0.3); }
   }
   
   .btn-primary:active {
@@ -582,23 +928,26 @@
   .success-hearts {
     font-size: 80px;
     margin-bottom: 24px;
-    animation: successPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: successPop 0.6s cubic-bezier(0.16, 1, 0.3, 1), heartbeat 1.2s ease-in-out infinite 0.6s;
+    filter: drop-shadow(0 0 30px rgba(255, 107, 157, 0.6));
   }
   
   @keyframes successPop {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    50% { transform: scale(1.3) rotate(10deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
   
   .success-title {
     font-size: 32px;
     font-weight: 300;
     margin-bottom: 16px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--warm), var(--primary));
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: gradientShift 3s ease-in-out infinite;
   }
   
   .success-text {
@@ -607,6 +956,7 @@
     color: rgba(255, 255, 255, 0.7);
     max-width: 320px;
     margin-bottom: 32px;
+    animation: fadeInUp 1s ease 0.3s both;
   }
   
   /* 签名 */
@@ -659,6 +1009,56 @@
     }
   }
   
+  /* 点击爆炸粒子 */
+  .click-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 49;
+    border-radius: 50%;
+    animation: clickBurst 0.8s ease-out forwards;
+  }
+  
+  @keyframes clickBurst {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+  }
+  
+  /* 流星 */
+  .meteor {
+    position: fixed;
+    top: 0;
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.8), transparent);
+    pointer-events: none;
+    z-index: 1;
+    transform: rotate(45deg);
+    animation: meteorFall linear forwards;
+  }
+  
+  @keyframes meteorFall {
+    0% {
+      opacity: 0;
+      transform: rotate(45deg) translateY(-100px);
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(45deg) translateY(100vh);
+    }
+  }
+  
   /* 底部 */
   footer {
     text-align: center;
@@ -682,6 +1082,27 @@
     display: inline-block;
   }
   
+  /* 烟花提示 */
+  .firework-hint {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    padding: 8px 14px;
+    border-radius: 20px;
+    z-index: 10;
+    animation: fadeIn 1s ease 2s both, pulse 3s ease-in-out infinite 3s;
+  }
+  
+  @media (max-width: 768px) {
+    .firework-hint { font-size: 11px; top: 10px; right: 10px; padding: 6px 12px; }
+  }
+  
   /* 响应式优化 */
   @media (max-width: 360px) {
     .hero-title { font-size: 40px; }
@@ -698,8 +1119,16 @@
 </head>
 <body>
 
+<!-- 自定义光标 -->
+<div class="custom-cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- 烟花提示 -->
+<div class="firework-hint">🎆 点击屏幕放烟花</div>
+
 <!-- 背景光晕 -->
 <div class="bg-glow">
+  <div class="glow-orb"></div>
   <div class="glow-orb"></div>
   <div class="glow-orb"></div>
   <div class="glow-orb"></div>
@@ -707,6 +1136,9 @@
 
 <!-- 粒子画布 -->
 <canvas id="particles-canvas"></canvas>
+
+<!-- 烟花画布 -->
+<canvas id="fireworks-canvas"></canvas>
 
 <!-- 主内容 -->
 <div class="container">
@@ -725,6 +1157,54 @@
       <span>向下滑动</span>
       <div class="scroll-arrow"></div>
     </div>
+  </section>
+  
+  <!-- 照片轮播 -->
+  <section class="gallery-section" data-animate>
+    <h2 class="section-title">我们的 <span>回忆</span></h2>
+    <div class="carousel" id="carousel">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="carousel-slide">
+          <div class="photo-frame">
+            <img src="photo1.jpg" alt="photo1" class="carousel-img">
+          </div>
+        </div>
+        <div class="carousel-slide">
+          <div class="photo-frame">
+            <img src="photo2.jpg" alt="photo2" class="carousel-img">
+          </div>
+        </div>
+        <div class="carousel-slide">
+          <div class="photo-frame">
+            <img src="photo3.jpg" alt="photo3" class="carousel-img">
+          </div>
+        </div>
+        <div class="carousel-slide">
+          <div class="photo-frame">
+            <img src="photo4.jpg" alt="photo4" class="carousel-img">
+          </div>
+        </div>
+      </div>
+      
+      <button class="carousel-btn carousel-prev" id="prevBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <button class="carousel-btn carousel-next" id="nextBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+      
+      <div class="carousel-dots" id="carouselDots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+    <p class="gallery-hint">← 左右滑动查看 →</p>
   </section>
   
   <!-- 第一张卡片 -->
@@ -856,10 +1336,11 @@
 </div>
 
 <script>
-  // 粒子背景
+  // ==================== 粒子背景 ====================
   const canvas = document.getElementById('particles-canvas');
   const ctx = canvas.getContext('2d');
   let particles = [];
+  let mouseX = -100, mouseY = -100;
   
   function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -877,19 +1358,38 @@
     reset() {
       this.x = Math.random() * canvas.width;
       this.y = Math.random() * canvas.height;
-      this.size = Math.random() * 2 + 0.5;
-      this.speedX = (Math.random() - 0.5) * 0.3;
-      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.size = Math.random() * 2.5 + 0.5;
+      this.baseSpeedX = (Math.random() - 0.5) * 0.3;
+      this.baseSpeedY = (Math.random() - 0.5) * 0.3;
+      this.speedX = this.baseSpeedX;
+      this.speedY = this.baseSpeedY;
       this.opacity = Math.random() * 0.5 + 0.1;
-      this.hue = Math.random() > 0.5 ? 340 : 280; // 粉色或紫色
+      this.hue = Math.floor(Math.random() * 360);
+      const hues = [340, 280, 200, 45, 160];
+      this.hue = hues[Math.floor(Math.random() * hues.length)];
     }
     
     update() {
+      // 鼠标吸引效果
+      const dx = mouseX - this.x;
+      const dy = mouseY - this.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist < 150 && dist > 0) {
+        const force = (150 - dist) / 150 * 0.02;
+        this.speedX += (dx / dist) * force;
+        this.speedY += (dy / dist) * force;
+      }
+      
+      // 回归基础速度
+      this.speedX += (this.baseSpeedX - this.speedX) * 0.02;
+      this.speedY += (this.baseSpeedY - this.speedY) * 0.02;
+      
       this.x += this.speedX;
       this.y += this.speedY;
       
-      if (this.x < 0 || this.x > canvas.width || 
-          this.y < 0 || this.y > canvas.height) {
+      if (this.x < -20 || this.x > canvas.width + 20 || 
+          this.y < -20 || this.y > canvas.height + 20) {
         this.reset();
       }
     }
@@ -897,13 +1397,19 @@
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${this.opacity})`;
+      const gradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.size * 3
+      );
+      gradient.addColorStop(0, `hsla(${this.hue}, 100%, 75%, ${this.opacity})`);
+      gradient.addColorStop(1, `hsla(${this.hue}, 100%, 75%, 0)`);
+      ctx.fillStyle = gradient;
       ctx.fill();
     }
   }
   
   // 创建粒子
-  const particleCount = Math.min(60, Math.floor(window.innerWidth / 8));
+  const particleCount = Math.min(80, Math.floor(window.innerWidth / 6));
   for (let i = 0; i < particleCount; i++) {
     particles.push(new Particle());
   }
@@ -923,11 +1429,11 @@
         const dy = p1.y - p2.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
-        if (dist < 100) {
+        if (dist < 120) {
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
-          const opacity = (1 - dist / 100) * 0.15;
+          const opacity = (1 - dist / 120) * 0.12;
           ctx.strokeStyle = `rgba(255, 107, 157, ${opacity})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
@@ -940,7 +1446,445 @@
   
   animateParticles();
   
-  // 滚动动画
+  // ==================== 烟花系统 ====================
+  const fwCanvas = document.getElementById('fireworks-canvas');
+  const fwCtx = fwCanvas.getContext('2d');
+  let fireworks = [];
+  let sparkles = [];
+  
+  function resizeFwCanvas() {
+    fwCanvas.width = window.innerWidth;
+    fwCanvas.height = window.innerHeight;
+  }
+  
+  resizeFwCanvas();
+  window.addEventListener('resize', resizeFwCanvas);
+  
+  // 烟花上升的火箭
+  class Firework {
+    constructor(x, targetY, color) {
+      this.x = x;
+      this.y = fwCanvas.height;
+      this.targetY = targetY;
+      this.speed = 8 + Math.random() * 4;
+      this.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
+      this.color = color || this.randomColor();
+      this.trail = [];
+      this.exploded = false;
+    }
+    
+    randomColor() {
+      const colors = [
+        { h: 340, s: 100, l: 65 }, // 粉
+        { h: 280, s: 100, l: 65 }, // 紫
+        { h: 200, s: 100, l: 65 }, // 蓝
+        { h: 45, s: 100, l: 60 },  // 金
+        { h: 160, s: 100, l: 60 }, // 青
+        { h: 25, s: 100, l: 60 },  // 橙
+      ];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    update() {
+      this.trail.push({ x: this.x, y: this.y, alpha: 1 });
+      if (this.trail.length > 10) this.trail.shift();
+      
+      this.trail.forEach(t => t.alpha *= 0.85);
+      
+      this.x += Math.cos(this.angle) * this.speed;
+      this.y += Math.sin(this.angle) * this.speed;
+      this.speed *= 0.98;
+      
+      if (this.y <= this.targetY || this.speed < 2) {
+        this.explode();
+        return false;
+      }
+      return true;
+    }
+    
+    explode() {
+      const count = 60 + Math.floor(Math.random() * 40);
+      const hue = this.color.h;
+      
+      for (let i = 0; i < count; i++) {
+        sparkles.push(new Sparkle(
+          this.x, this.y,
+          hue + (Math.random() - 0.5) * 30,
+          Math.random() * 6 + 2
+        ));
+      }
+    }
+    
+    draw() {
+      // 尾迹
+      this.trail.forEach((t, i) => {
+        fwCtx.beginPath();
+        fwCtx.arc(t.x, t.y, 2, 0, Math.PI * 2);
+        fwCtx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${t.alpha})`;
+        fwCtx.fill();
+      });
+      
+      // 头部
+      fwCtx.beginPath();
+      fwCtx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+      fwCtx.fillStyle = `hsl(${this.color.h}, ${this.color.s}%, ${this.color.l}%)`;
+      fwCtx.fill();
+      
+      // 光晕
+      fwCtx.beginPath();
+      fwCtx.arc(this.x, this.y, 8, 0, Math.PI * 2);
+      fwCtx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, 0.3)`;
+      fwCtx.fill();
+    }
+  }
+  
+  // 爆炸粒子
+  class Sparkle {
+    constructor(x, y, hue, speed) {
+      this.x = x;
+      this.y = y;
+      this.hue = hue;
+      this.speed = speed;
+      this.angle = Math.random() * Math.PI * 2;
+      this.gravity = 0.08;
+      this.friction = 0.97;
+      this.alpha = 1;
+      this.decay = 0.012 + Math.random() * 0.01;
+      this.size = 2 + Math.random() * 2;
+      this.trail = [];
+    }
+    
+    update() {
+      this.trail.push({ x: this.x, y: this.y, alpha: this.alpha });
+      if (this.trail.length > 5) this.trail.shift();
+      
+      this.speed *= this.friction;
+      this.x += Math.cos(this.angle) * this.speed;
+      this.y += Math.sin(this.angle) * this.speed;
+      this.y += this.gravity;
+      this.alpha -= this.decay;
+      
+      return this.alpha > 0;
+    }
+    
+    draw() {
+      // 尾迹
+      this.trail.forEach((t, i) => {
+        const a = (i / this.trail.length) * t.alpha * 0.5;
+        fwCtx.beginPath();
+        fwCtx.arc(t.x, t.y, this.size * 0.5, 0, Math.PI * 2);
+        fwCtx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${a})`;
+        fwCtx.fill();
+      });
+      
+      // 主体
+      fwCtx.beginPath();
+      fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      fwCtx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${this.alpha})`;
+      fwCtx.fill();
+      
+      // 光晕
+      fwCtx.beginPath();
+      fwCtx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+      fwCtx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${this.alpha * 0.3})`;
+      fwCtx.fill();
+    }
+  }
+  
+  function animateFireworks() {
+    fwCtx.fillStyle = 'rgba(10, 10, 26, 0.04)';
+    fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+    
+    fireworks = fireworks.filter(fw => fw.update());
+    fireworks.forEach(fw => fw.draw());
+    
+    sparkles = sparkles.filter(s => s.update());
+    sparkles.forEach(s => s.draw());
+    
+    requestAnimationFrame(animateFireworks);
+  }
+  
+  animateFireworks();
+  
+  // 发射烟花
+  function launchFirework(x, y) {
+    const targetY = y || Math.random() * (fwCanvas.height * 0.4) + 50;
+    const startX = x || Math.random() * fwCanvas.width;
+    fireworks.push(new Firework(startX, targetY));
+  }
+  
+  // 自动放烟花（开场 + 定时）
+  setTimeout(() => {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => launchFirework(), i * 300);
+    }
+  }, 1500);
+  
+  // 定时自动烟花
+  setInterval(() => {
+    if (Math.random() > 0.5) {
+      launchFirework();
+    }
+  }, 4000);
+  
+  // ==================== 自定义光标 ====================
+  const cursor = document.getElementById('cursor');
+  const cursorDot = document.getElementById('cursorDot');
+  
+  let cursorX = 0, cursorY = 0;
+  let dotX = 0, dotY = 0;
+  
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorX = e.clientX;
+    cursorY = e.clientY;
+  });
+  
+  function animateCursor() {
+    dotX += (cursorX - dotX) * 1;
+    dotY += (cursorY - dotY) * 1;
+    
+    cursor.style.left = cursorX + 'px';
+    cursor.style.top = cursorY + 'px';
+    cursorDot.style.left = dotX + 'px';
+    cursorDot.style.top = dotY + 'px';
+    
+    requestAnimationFrame(animateCursor);
+  }
+  
+  if (window.innerWidth > 768) {
+    animateCursor();
+    
+    // 悬停效果
+    document.querySelectorAll('button, .reason-item, .heart-display, .glass-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+  }
+  
+  // ==================== 点击爆炸特效 ====================
+  let lastClickTime = 0;
+  
+  document.addEventListener('click', (e) => {
+    const now = Date.now();
+    
+    // 放烟花
+    launchFirework(e.clientX, e.clientY);
+    
+    // 额外放几个
+    if (now - lastClickTime < 500) {
+      setTimeout(() => launchFirework(
+        e.clientX + (Math.random() - 0.5) * 100,
+        e.clientY + (Math.random() - 0.5) * 50
+      ), 100);
+    }
+    lastClickTime = now;
+    
+    // 点击爆炸粒子
+    createClickBurst(e.clientX, e.clientY);
+  });
+  
+  function createClickBurst(x, y) {
+    const colors = ['#ff6b9d', '#c44dff', '#6bcaff', '#ffd93d', '#ff9f43', '#26de81'];
+    const count = 12;
+    
+    for (let i = 0; i < count; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'click-particle';
+      const angle = (i / count) * Math.PI * 2;
+      const distance = 40 + Math.random() * 40;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+      
+      particle.style.left = x + 'px';
+      particle.style.top = y + 'px';
+      particle.style.width = (4 + Math.random() * 6) + 'px';
+      particle.style.height = particle.style.width;
+      particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+      particle.style.setProperty('--tx', tx + 'px');
+      particle.style.setProperty('--ty', ty + 'px');
+      particle.style.boxShadow = `0 0 10px ${particle.style.background}`;
+      
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 800);
+    }
+  }
+  
+  // ==================== 流星效果 ====================
+  function createMeteor() {
+    const meteor = document.createElement('div');
+    meteor.className = 'meteor';
+    meteor.style.left = Math.random() * window.innerWidth + 'px';
+    meteor.style.height = (60 + Math.random() * 60) + 'px';
+    meteor.style.animationDuration = (1 + Math.random() * 1.5) + 's';
+    
+    // 随机颜色
+    const colors = [
+      'linear-gradient(to bottom, rgba(255,107,157,0.8), transparent)',
+      'linear-gradient(to bottom, rgba(196,77,255,0.8), transparent)',
+      'linear-gradient(to bottom, rgba(107,202,255,0.8), transparent)',
+      'linear-gradient(to bottom, rgba(255,255,255,0.8), transparent)',
+    ];
+    meteor.style.background = colors[Math.floor(Math.random() * colors.length)];
+    
+    document.body.appendChild(meteor);
+    setTimeout(() => meteor.remove(), 3000);
+  }
+  
+  // 定时生成流星
+  setInterval(() => {
+    if (Math.random() > 0.6) {
+      createMeteor();
+    }
+  }, 3000);
+  
+  // 初始流星
+  setTimeout(() => createMeteor(), 2000);
+  setTimeout(() => createMeteor(), 4000);
+  
+  // ==================== 轮播图 - 苹果风格 ====================
+  const carousel = document.getElementById('carousel');
+  const track = document.getElementById('carouselTrack');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsContainer = document.getElementById('carouselDots');
+  const dots = dotsContainer.querySelectorAll('.dot');
+  const totalSlides = 4;
+  let currentSlide = 0;
+  let autoPlayTimer = null;
+  let isDragging = false;
+  let startX = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  
+  function updateCarousel() {
+    currentTranslate = -currentSlide * 100;
+    track.style.transform = `translateX(${currentTranslate}%)`;
+    
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === currentSlide);
+    });
+  }
+  
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateCarousel();
+  }
+  
+  function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    updateCarousel();
+  }
+  
+  function goToSlide(index) {
+    currentSlide = index;
+    updateCarousel();
+  }
+  
+  // 自动播放
+  function startAutoPlay() {
+    stopAutoPlay();
+    autoPlayTimer = setInterval(nextSlide, 4000);
+  }
+  
+  function stopAutoPlay() {
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+    }
+  }
+  
+  prevBtn.addEventListener('click', () => {
+    prevSlide();
+    startAutoPlay();
+  });
+  
+  nextBtn.addEventListener('click', () => {
+    nextSlide();
+    startAutoPlay();
+  });
+  
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      goToSlide(index);
+      startAutoPlay();
+    });
+  });
+  
+  // 触摸滑动
+  function getPositionX(event) {
+    return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+  }
+  
+  function touchStart(event) {
+    isDragging = true;
+    startX = getPositionX(event);
+    stopAutoPlay();
+    track.style.transition = 'none';
+  }
+  
+  function touchMove(event) {
+    if (!isDragging) return;
+    const currentX = getPositionX(event);
+    const diff = currentX - startX;
+    const percentage = (diff / carousel.offsetWidth) * 100;
+    const baseTranslate = -currentSlide * 100;
+    track.style.transform = `translateX(${baseTranslate + percentage}%)`;
+  }
+  
+  function touchEnd(event) {
+    if (!isDragging) return;
+    isDragging = false;
+    track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+    
+    const endX = event.changedTouches ? event.changedTouches[0].clientX : event.pageX;
+    const diff = endX - startX;
+    const threshold = carousel.offsetWidth * 0.2;
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        prevSlide();
+      } else {
+        nextSlide();
+      }
+    } else {
+      updateCarousel();
+    }
+    
+    startAutoPlay();
+  }
+  
+  carousel.addEventListener('touchstart', touchStart, { passive: true });
+  carousel.addEventListener('touchmove', touchMove, { passive: true });
+  carousel.addEventListener('touchend', touchEnd);
+  
+  // 鼠标拖拽（桌面端）
+  carousel.addEventListener('mousedown', touchStart);
+  carousel.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      e.preventDefault();
+      touchMove(e);
+    }
+  });
+  carousel.addEventListener('mouseup', touchEnd);
+  carousel.addEventListener('mouseleave', () => {
+    if (isDragging) {
+      isDragging = false;
+      track.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+      updateCarousel();
+      startAutoPlay();
+    }
+  });
+  
+  // 悬停暂停
+  carousel.addEventListener('mouseenter', stopAutoPlay);
+  carousel.addEventListener('mouseleave', startAutoPlay);
+  
+  // 启动自动播放
+  startAutoPlay();
+  
+  // ==================== 滚动动画 ====================
   const observerOptions = {
     threshold: 0.15,
     rootMargin: '0px 0px -50px 0px'
@@ -966,7 +1910,7 @@
     observer.observe(el);
   });
   
-  // 心动计数器
+  // ==================== 心动计数器 ====================
   const heartBtn = document.getElementById('heartBtn');
   const heartCount = document.getElementById('heartCount');
   let count = 0;
@@ -977,52 +1921,72 @@
   }
   
   heartBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     count++;
     heartCount.textContent = count;
     localStorage.setItem('heartCount', count);
     
     // 爱心飞出效果
-    createFloatingHeart(e.clientX, e.clientY);
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        createFloatingHeart(e.clientX, e.clientY);
+      }, i * 80);
+    }
     
-    // 震动反馈（移动端）
+    // 小烟花
+    launchFirework(e.clientX, e.clientY - 50);
+    
+    // 震动反馈
     if (navigator.vibrate) {
       navigator.vibrate(50);
     }
   });
   
   function createFloatingHeart(x, y) {
-    const hearts = ['❤️', '💕', '💖', '💗', '💓', '💝'];
+    const hearts = ['❤️', '💕', '💖', '💗', '💓', '💝', '💘', '💞'];
     const heart = document.createElement('div');
     heart.className = 'floating-heart';
     heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-    heart.style.left = (x - 12 + (Math.random() - 0.5) * 40) + 'px';
-    heart.style.top = (y - 20) + 'px';
-    heart.style.fontSize = (20 + Math.random() * 16) + 'px';
+    heart.style.left = (x - 12 + (Math.random() - 0.5) * 60) + 'px';
+    heart.style.top = (y - 20 + (Math.random() - 0.5) * 20) + 'px';
+    heart.style.fontSize = (20 + Math.random() * 20) + 'px';
+    heart.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
     document.body.appendChild(heart);
     
-    setTimeout(() => heart.remove(), 3000);
+    setTimeout(() => heart.remove(), 4000);
   }
   
-  // 按钮交互
+  // ==================== 按钮交互 ====================
   const yesBtn = document.getElementById('yesBtn');
   const noBtn = document.getElementById('noBtn');
   const successOverlay = document.getElementById('successOverlay');
   
-  yesBtn.addEventListener('click', () => {
+  yesBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     successOverlay.classList.add('active');
     
-    // 放很多爱心
-    for (let i = 0; i < 30; i++) {
+    // 超级烟花秀
+    for (let i = 0; i < 15; i++) {
+      setTimeout(() => {
+        launchFirework(
+          Math.random() * window.innerWidth,
+          Math.random() * window.innerHeight * 0.5 + 50
+        );
+      }, i * 150);
+    }
+    
+    // 满屏爱心
+    for (let i = 0; i < 50; i++) {
       setTimeout(() => {
         createFloatingHeart(
           Math.random() * window.innerWidth,
           window.innerHeight
         );
-      }, i * 100);
+      }, i * 60);
     }
     
     if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100, 50, 200]);
+      navigator.vibrate([100, 50, 100, 50, 200, 100, 200]);
     }
   });
   
@@ -1033,7 +1997,10 @@
   noBtn.addEventListener('click', escapeNoBtn);
   
   function escapeNoBtn(e) {
-    if (e) e.preventDefault();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     noBtnEscapeCount++;
     
     if (noBtnEscapeCount >= 5) {
@@ -1061,7 +2028,7 @@
     successOverlay.classList.remove('active');
   }
   
-  // 触摸滑动提示隐藏
+  // ==================== 触摸滑动提示隐藏 ====================
   let startY = 0;
   document.addEventListener('touchstart', (e) => {
     startY = e.touches[0].clientY;
@@ -1075,6 +2042,23 @@
       if (hint) hint.style.opacity = '0';
     }
   }, { passive: true });
+  
+  // 移动端点击烟花
+  document.addEventListener('touchstart', (e) => {
+    const touch = e.touches[0];
+    launchFirework(touch.clientX, touch.clientY);
+    createClickBurst(touch.clientX, touch.clientY);
+  }, { passive: true });
+  
+  // 隐藏烟花提示
+  setTimeout(() => {
+    const hint = document.querySelector('.firework-hint');
+    if (hint) {
+      hint.style.transition = 'opacity 1s ease';
+      hint.style.opacity = '0';
+      setTimeout(() => hint.remove(), 1000);
+    }
+  }, 10000);
 </script>
 
 </body>
