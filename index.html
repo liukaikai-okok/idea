@@ -98,7 +98,7 @@
     pointer-events: none;
   }
   
-  /* 烟花画布 */
+  /* 蜘蛛画布 */
   #fireworks-canvas {
     position: fixed;
     top: 0;
@@ -107,7 +107,7 @@
     height: 100%;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.8;
+    opacity: 0.9;
   }
   
   /* 渐变光晕背景 */
@@ -1476,9 +1476,9 @@
   <span class="music-note" style="animation-delay: 0.2s">♫</span>
 </button>
 <audio id="bgMusic" loop preload="auto">
+  <source src="oneday.mp3" type="audio/mpeg">
   <source src="https://cdn.jsdelivr.net/gh/liukaikai-okok/idea@master/oneday.mp3" type="audio/mpeg">
   <source src="https://music.163.com/song/media/outer/url?id=254054.mp3" type="audio/mpeg">
-  <source src="https://api.paugram.com/music/?id=254054" type="audio/mpeg">
 </audio>
 
 <script>
@@ -1601,11 +1601,12 @@
   
   animateParticles();
   
-  // ==================== 烟花系统 ====================
+  // ==================== 小蜘蛛侠吐丝系统 ====================
   const fwCanvas = document.getElementById('fireworks-canvas');
   const fwCtx = fwCanvas.getContext('2d');
-  let fireworks = [];
-  let sparkles = [];
+  let spiders = [];
+  let webLines = []; // 蜘蛛丝
+  let swingEffects = []; // 飞荡效果
   
   function resizeFwCanvas() {
     fwCanvas.width = window.innerWidth * dpr;
@@ -1623,172 +1624,288 @@
     fwCtx.scale(dpr, dpr);
   });
   
-  // 烟花上升的火箭
-  class Firework {
-    constructor(x, targetY, color) {
+  // 小蜘蛛类
+  class Spider {
+    constructor(x) {
+      this.anchorX = x; // 蛛丝固定点（顶部）
+      this.anchorY = 0;
       this.x = x;
-      this.y = window.innerHeight;
-      this.targetY = targetY;
-      this.speed = 8 + Math.random() * 4;
-      this.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
-      this.color = color || this.randomColor();
-      this.trail = [];
-      this.exploded = false;
-    }
-    
-    randomColor() {
-      const colors = [
-        { h: 340, s: 100, l: 65 }, // 粉
-        { h: 280, s: 100, l: 65 }, // 紫
-        { h: 200, s: 100, l: 65 }, // 蓝
-        { h: 45, s: 100, l: 60 },  // 金
-        { h: 160, s: 100, l: 60 }, // 青
-        { h: 25, s: 100, l: 60 },  // 橙
-      ];
-      return colors[Math.floor(Math.random() * colors.length)];
+      this.y = 50 + Math.random() * 100; // 初始位置
+      this.targetY = this.y;
+      this.webLength = this.y; // 蛛丝长度
+      this.swingAngle = 0; // 摆动角度
+      this.swingSpeed = 0.02 + Math.random() * 0.02; // 摆动速度
+      this.swingAmp = 15 + Math.random() * 20; // 摆动幅度
+      this.size = 10 + Math.random() * 6; // 蜘蛛大小
+      this.color = `hsl(${330 + Math.random() * 40}, 80%, 65%)`; // 粉紫色系
+      this.glowColor = `hsla(${330 + Math.random() * 40}, 100%, 70%, 0.4)`;
+      this.climbing = Math.random() > 0.5; // 是否在爬动
+      this.climbSpeed = 0.3 + Math.random() * 0.5;
+      this.climbDirection = Math.random() > 0.5 ? 1 : -1;
+      this.climbTimer = 0;
+      this.climbInterval = 120 + Math.random() * 180;
+      this.legPhase = Math.random() * Math.PI * 2; // 腿部动画相位
+      this.isSwinging = false; // 是否在飞荡
+      this.swingStartX = 0;
+      this.swingStartY = 0;
+      this.swingTargetX = 0;
+      this.swingTargetY = 0;
+      this.swingProgress = 0;
+      this.newAnchorX = 0;
+      this.newAnchorY = 0;
     }
     
     update() {
-      this.trail.push({ x: this.x, y: this.y, alpha: 1 });
-      if (this.trail.length > 10) this.trail.shift();
-      
-      this.trail.forEach(t => t.alpha *= 0.85);
-      
-      this.x += Math.cos(this.angle) * this.speed;
-      this.y += Math.sin(this.angle) * this.speed;
-      this.speed *= 0.98;
-      
-      if (this.y <= this.targetY || this.speed < 2) {
-        this.explode();
-        return false;
+      // 如果正在飞荡
+      if (this.isSwinging) {
+        this.swingProgress += 0.025;
+        const t = this.swingProgress;
+        const easeT = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; // ease-in-out
+        
+        // 抛物线运动（蜘蛛侠飞荡轨迹）
+        const midX = (this.swingStartX + this.swingTargetX) / 2;
+        const midY = Math.min(this.swingStartY, this.swingTargetY) - 80;
+        
+        this.x = (1-t)*(1-t)*this.swingStartX + 2*(1-t)*t*midX + t*t*this.swingTargetX;
+        this.y = (1-t)*(1-t)*this.swingStartY + 2*(1-t)*t*midY + t*t*this.swingTargetY;
+        
+        // 更新蛛丝固定点
+        this.anchorX = this.newAnchorX;
+        this.anchorY = this.newAnchorY;
+        this.webLength = Math.sqrt(
+          (this.x - this.anchorX) ** 2 + (this.y - this.anchorY) ** 2
+        );
+        
+        if (this.swingProgress >= 1) {
+          this.isSwinging = false;
+          this.x = this.swingTargetX;
+          this.y = this.swingTargetY;
+          this.targetY = this.y;
+          this.webLength = Math.sqrt(
+            (this.x - this.anchorX) ** 2 + (this.y - this.anchorY) ** 2
+          );
+        }
+        return;
       }
-      return true;
-    }
-    
-    explode() {
-      const count = 60 + Math.floor(Math.random() * 40);
-      const hue = this.color.h;
       
-      for (let i = 0; i < count; i++) {
-        sparkles.push(new Sparkle(
-          this.x, this.y,
-          hue + (Math.random() - 0.5) * 30,
-          Math.random() * 6 + 2
-        ));
+      // 摆动
+      this.swingAngle += this.swingSpeed;
+      const swingOffset = Math.sin(this.swingAngle) * this.swingAmp;
+      
+      // 爬动行为
+      this.climbTimer++;
+      if (this.climbTimer > this.climbInterval) {
+        this.climbTimer = 0;
+        this.climbing = Math.random() > 0.4;
+        this.climbDirection = Math.random() > 0.5 ? 1 : -1;
+        this.climbInterval = 120 + Math.random() * 180;
       }
+      
+      if (this.climbing) {
+        this.targetY += this.climbSpeed * this.climbDirection;
+        // 限制范围
+        this.targetY = Math.max(40, Math.min(window.innerHeight * 0.6, this.targetY));
+      }
+      
+      // 平滑移动到目标位置
+      this.webLength += (this.targetY - this.webLength) * 0.03;
+      this.y = this.anchorY + this.webLength;
+      this.x = this.anchorX + swingOffset;
+      
+      // 腿部动画
+      this.legPhase += 0.15;
     }
     
     draw() {
-      // 尾迹
-      this.trail.forEach((t, i) => {
-        fwCtx.beginPath();
-        fwCtx.arc(t.x, t.y, 2, 0, Math.PI * 2);
-        fwCtx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${t.alpha})`;
-        fwCtx.fill();
-      });
-      
-      // 头部
+      // 画蛛丝
       fwCtx.beginPath();
-      fwCtx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-      fwCtx.fillStyle = `hsl(${this.color.h}, ${this.color.s}%, ${this.color.l}%)`;
-      fwCtx.fill();
+      fwCtx.moveTo(this.anchorX, this.anchorY);
+      
+      // 蛛丝带点曲线摆动
+      const midX = (this.anchorX + this.x) / 2 + Math.sin(this.swingAngle + 1) * 3;
+      const midY = (this.anchorY + this.y) / 2;
+      fwCtx.quadraticCurveTo(midX, midY, this.x, this.y);
+      
+      fwCtx.strokeStyle = 'rgba(255, 182, 213, 0.6)';
+      fwCtx.lineWidth = 1.2;
+      fwCtx.stroke();
+      
+      // 蛛丝发光
+      fwCtx.strokeStyle = 'rgba(255, 182, 213, 0.2)';
+      fwCtx.lineWidth = 3;
+      fwCtx.stroke();
+      
+      // 画蜘蛛
+      fwCtx.save();
+      fwCtx.translate(this.x, this.y);
       
       // 光晕
       fwCtx.beginPath();
-      fwCtx.arc(this.x, this.y, 8, 0, Math.PI * 2);
-      fwCtx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, 0.3)`;
+      fwCtx.arc(0, 0, this.size * 2, 0, Math.PI * 2);
+      fwCtx.fillStyle = this.glowColor;
       fwCtx.fill();
-    }
-  }
-  
-  // 爆炸粒子
-  class Sparkle {
-    constructor(x, y, hue, speed) {
-      this.x = x;
-      this.y = y;
-      this.hue = hue;
-      this.speed = speed;
-      this.angle = Math.random() * Math.PI * 2;
-      this.gravity = 0.08;
-      this.friction = 0.97;
-      this.alpha = 1;
-      this.decay = 0.012 + Math.random() * 0.01;
-      this.size = 2 + Math.random() * 2;
-      this.trail = [];
-    }
-    
-    update() {
-      this.trail.push({ x: this.x, y: this.y, alpha: this.alpha });
-      if (this.trail.length > 5) this.trail.shift();
       
-      this.speed *= this.friction;
-      this.x += Math.cos(this.angle) * this.speed;
-      this.y += Math.sin(this.angle) * this.speed;
-      this.y += this.gravity;
-      this.alpha -= this.decay;
+      // 腿（8条，动画摆动）
+      fwCtx.strokeStyle = this.color;
+      fwCtx.lineWidth = 2;
+      fwCtx.lineCap = 'round';
       
-      return this.alpha > 0;
-    }
-    
-    draw() {
-      // 尾迹
-      this.trail.forEach((t, i) => {
-        const a = (i / this.trail.length) * t.alpha * 0.5;
+      for (let i = 0; i < 4; i++) {
+        const legAngle = (i / 3 - 0.5) * 1.2;
+        const legWave = Math.sin(this.legPhase + i) * 0.2;
+        
+        // 左腿
         fwCtx.beginPath();
-        fwCtx.arc(t.x, t.y, this.size * 0.5, 0, Math.PI * 2);
-        fwCtx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${a})`;
-        fwCtx.fill();
+        fwCtx.moveTo(-this.size * 0.3, -this.size * 0.2 + i * this.size * 0.2);
+        fwCtx.quadraticCurveTo(
+          -this.size * 0.9, -this.size * 0.3 + i * this.size * 0.2 + legWave * 5,
+          -this.size * 1.2 - Math.abs(legWave) * 3, this.size * 0.1 + i * this.size * 0.3
+        );
+        fwCtx.stroke();
+        
+        // 右腿
+        fwCtx.beginPath();
+        fwCtx.moveTo(this.size * 0.3, -this.size * 0.2 + i * this.size * 0.2);
+        fwCtx.quadraticCurveTo(
+          this.size * 0.9, -this.size * 0.3 + i * this.size * 0.2 - legWave * 5,
+          this.size * 1.2 + Math.abs(legWave) * 3, this.size * 0.1 + i * this.size * 0.3
+        );
+        fwCtx.stroke();
+      }
+      
+      // 身体（椭圆形）
+      fwCtx.beginPath();
+      fwCtx.ellipse(0, 0, this.size * 0.5, this.size * 0.65, 0, 0, Math.PI * 2);
+      fwCtx.fillStyle = this.color;
+      fwCtx.fill();
+      
+      // 头
+      fwCtx.beginPath();
+      fwCtx.arc(0, -this.size * 0.5, this.size * 0.35, 0, Math.PI * 2);
+      fwCtx.fillStyle = this.color;
+      fwCtx.fill();
+      
+      // 眼睛（两个小白点，可爱风格）
+      fwCtx.fillStyle = '#fff';
+      fwCtx.beginPath();
+      fwCtx.arc(-this.size * 0.12, -this.size * 0.55, this.size * 0.1, 0, Math.PI * 2);
+      fwCtx.arc(this.size * 0.12, -this.size * 0.55, this.size * 0.1, 0, Math.PI * 2);
+      fwCtx.fill();
+      
+      // 眼珠
+      fwCtx.fillStyle = '#333';
+      fwCtx.beginPath();
+      fwCtx.arc(-this.size * 0.12, -this.size * 0.53, this.size * 0.05, 0, Math.PI * 2);
+      fwCtx.arc(this.size * 0.12, -this.size * 0.53, this.size * 0.05, 0, Math.PI * 2);
+      fwCtx.fill();
+      
+      fwCtx.restore();
+    }
+    
+    // 飞荡到目标位置
+    swingTo(targetX, targetY) {
+      if (this.isSwinging) return;
+      
+      this.isSwinging = true;
+      this.swingStartX = this.x;
+      this.swingStartY = this.y;
+      this.swingTargetX = targetX;
+      this.swingTargetY = targetY;
+      this.swingProgress = 0;
+      
+      // 新的蛛丝固定点（在目标上方随机位置）
+      this.newAnchorX = targetX + (Math.random() - 0.5) * 60;
+      this.newAnchorY = Math.max(0, targetY - 30 - Math.random() * 50);
+      
+      // 添加飞荡蛛丝效果
+      webLines.push({
+        startX: this.anchorX,
+        startY: this.anchorY,
+        endX: this.newAnchorX,
+        endY: this.newAnchorY,
+        alpha: 0.8,
+        life: 30
       });
-      
-      // 主体
-      fwCtx.beginPath();
-      fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      fwCtx.fillStyle = `hsla(${this.hue}, 100%, 70%, ${this.alpha})`;
-      fwCtx.fill();
-      
-      // 光晕
-      fwCtx.beginPath();
-      fwCtx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-      fwCtx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${this.alpha * 0.3})`;
-      fwCtx.fill();
     }
   }
   
-  function animateFireworks() {
-    fwCtx.fillStyle = 'rgba(10, 10, 26, 0.04)';
-    fwCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-    
-    fireworks = fireworks.filter(fw => fw.update());
-    fireworks.forEach(fw => fw.draw());
-    
-    sparkles = sparkles.filter(s => s.update());
-    sparkles.forEach(s => s.draw());
-    
-    requestAnimationFrame(animateFireworks);
+  // 初始化蜘蛛
+  const spiderCount = Math.min(6, Math.floor(window.innerWidth / 120));
+  for (let i = 0; i < spiderCount; i++) {
+    const x = (window.innerWidth / (spiderCount + 1)) * (i + 1) + (Math.random() - 0.5) * 40;
+    spiders.push(new Spider(x));
   }
   
-  animateFireworks();
+  function animateSpiders() {
+    fwCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    // 更新和绘制蛛丝连线
+    webLines = webLines.filter(line => {
+      line.life--;
+      line.alpha = line.life / 30 * 0.6;
+      
+      fwCtx.beginPath();
+      fwCtx.moveTo(line.startX, line.startY);
+      fwCtx.lineTo(line.endX, line.endY);
+      fwCtx.strokeStyle = `rgba(255, 182, 213, ${line.alpha})`;
+      fwCtx.lineWidth = 1;
+      fwCtx.stroke();
+      
+      return line.life > 0;
+    });
+    
+    // 更新和绘制蜘蛛
+    spiders.forEach(spider => {
+      spider.update();
+      spider.draw();
+    });
+    
+    requestAnimationFrame(animateSpiders);
+  }
   
-  // 发射烟花
+  animateSpiders();
+  
+  // 发射蜘蛛飞荡（替代烟花效果）
   function launchFirework(x, y) {
-    const targetY = y || Math.random() * (window.innerHeight * 0.4) + 50;
-    const startX = x || Math.random() * window.innerWidth;
-    fireworks.push(new Firework(startX, targetY));
+    // 找最近的蜘蛛飞过去
+    let closestSpider = null;
+    let closestDist = Infinity;
+    
+    spiders.forEach(spider => {
+      const dist = Math.sqrt((spider.x - x) ** 2 + (spider.y - y) ** 2);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closestSpider = spider;
+      }
+    });
+    
+    if (closestSpider && closestDist > 30) {
+      closestSpider.swingTo(x, y);
+    }
+    
+    // 额外触发：让其他蜘蛛也动一动
+    spiders.forEach((spider, i) => {
+      if (spider !== closestSpider && Math.random() > 0.6) {
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = Math.random() * 60;
+        setTimeout(() => {
+          spider.swingTo(spider.x + offsetX, spider.y + offsetY);
+        }, i * 100);
+      }
+    });
   }
   
-  // 自动放烟花（开场 + 定时）
-  setTimeout(() => {
-    for (let i = 0; i < 5; i++) {
-      setTimeout(() => launchFirework(), i * 300);
-    }
-  }, 1500);
-  
-  // 定时自动烟花
+  // 定时让蜘蛛随机飞荡（调皮）
   setInterval(() => {
-    if (Math.random() > 0.5) {
-      launchFirework();
+    if (Math.random() > 0.6) {
+      const randomSpider = spiders[Math.floor(Math.random() * spiders.length)];
+      if (randomSpider && !randomSpider.isSwinging) {
+        const newX = Math.random() * window.innerWidth;
+        const newY = 50 + Math.random() * (window.innerHeight * 0.4);
+        randomSpider.swingTo(newX, newY);
+      }
     }
-  }, 4000);
+  }, 5000);
   
   // ==================== 自定义光标 ====================
   const cursor = document.getElementById('cursor');
@@ -2363,9 +2480,9 @@
   
   // 多个备用音源，自动切换
   const musicSources = [
+    'oneday.mp3',
     'https://cdn.jsdelivr.net/gh/liukaikai-okok/idea@master/oneday.mp3',
     'https://music.163.com/song/media/outer/url?id=254054.mp3',
-    'https://api.paugram.com/music/?id=254054',
   ];
   let currentSourceIndex = 0;
   
