@@ -1477,6 +1477,7 @@
 </button>
 <audio id="bgMusic" loop preload="auto">
   <source src="https://music.163.com/song/media/outer/url?id=254054.mp3" type="audio/mpeg">
+  <source src="https://cdn.jsdelivr.net/gh/liukaikai-okok/idea@master/courage.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -2359,18 +2360,50 @@
   const musicBtn = document.getElementById('musicBtn');
   let musicPlaying = false;
   
+  // 多个备用音源，自动切换
+  const musicSources = [
+    'https://music.163.com/song/media/outer/url?id=254054.mp3',
+    'https://cdn.jsdelivr.net/gh/liukaikai-okok/idea@master/courage.mp3',
+    'https://api.paugram.com/music/?id=254054',
+    'https://music.api.qq.com/song/media/outer/url?id=254054.mp3',
+  ];
+  let currentSourceIndex = 0;
+  
+  function tryNextSource() {
+    currentSourceIndex++;
+    if (currentSourceIndex < musicSources.length) {
+      bgMusic.src = musicSources[currentSourceIndex];
+      bgMusic.load();
+      bgMusic.play().catch(() => tryNextSource());
+    }
+  }
+  
+  bgMusic.addEventListener('error', (e) => {
+    if (musicPlaying) {
+      tryNextSource();
+    }
+  });
+  
   function toggleMusic() {
     if (musicPlaying) {
       bgMusic.pause();
       musicBtn.classList.remove('playing');
       musicPlaying = false;
     } else {
-      bgMusic.volume = 0.5;
-      bgMusic.play().then(() => {
+      playMusic();
+    }
+  }
+  
+  function playMusic() {
+    bgMusic.volume = 0.4;
+    const playPromise = bgMusic.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
         musicBtn.classList.add('playing');
         musicPlaying = true;
       }).catch(err => {
-        console.log('播放失败，需要用户交互');
+        // 当前源失败，试下一个
+        tryNextSource();
       });
     }
   }
@@ -2380,11 +2413,7 @@
   // 第一次触摸/点击时尝试自动播放（符合移动端策略）
   function tryAutoPlay() {
     if (!musicPlaying) {
-      bgMusic.volume = 0.3;
-      bgMusic.play().then(() => {
-        musicBtn.classList.add('playing');
-        musicPlaying = true;
-      }).catch(() => {});
+      playMusic();
     }
     document.removeEventListener('touchstart', tryAutoPlay);
     document.removeEventListener('click', tryAutoPlay);
