@@ -39,6 +39,15 @@
   body {
     min-height: 100vh;
     position: relative;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    overscroll-behavior-y: none;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
   
   /* 自定义光标 */
@@ -228,6 +237,74 @@
     opacity: 0;
     animation: fadeInUp 1s ease 0.9s forwards;
     max-width: 320px;
+  }
+  
+  /* 音乐按钮 */
+  .music-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .music-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+  
+  .music-btn:active {
+    transform: scale(0.95);
+  }
+  
+  .music-btn.playing .music-icon {
+    animation: spin 3s linear infinite;
+  }
+  
+  .music-icon {
+    font-size: 22px;
+    display: inline-block;
+  }
+  
+  .music-btn .music-note {
+    position: absolute;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .music-btn.playing .music-note {
+    animation: floatNote 2s ease-out infinite;
+  }
+  
+  @keyframes floatNote {
+    0% {
+      opacity: 0.8;
+      transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) translateX(10px) rotate(20deg);
+    }
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
   
   .scroll-hint {
@@ -928,6 +1005,14 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    left: 0;
+    top: 0;
+    transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                top 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.15s ease,
+                background 0.3s ease;
+    will-change: left, top;
   }
   
   .btn-secondary:active {
@@ -1384,20 +1469,39 @@
   <button class="btn btn-primary" onclick="closeSuccess()">❤️</button>
 </div>
 
+<!-- 背景音乐按钮 -->
+<button class="music-btn" id="musicBtn" title="播放/暂停音乐">
+  <span class="music-icon">🎵</span>
+  <span class="music-note">♪</span>
+  <span class="music-note" style="animation-delay: 0.2s">♫</span>
+</button>
+<audio id="bgMusic" loop preload="auto">
+  <source src="https://music.163.com/song/media/outer/url?id=254054.mp3" type="audio/mpeg">
+</audio>
+
 <script>
   // ==================== 粒子背景 ====================
   const canvas = document.getElementById('particles-canvas');
   const ctx = canvas.getContext('2d');
   let particles = [];
   let mouseX = -100, mouseY = -100;
+  const dpr = window.devicePixelRatio || 1;
   
   function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.scale(dpr, dpr);
   }
   
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+  });
   
   class Particle {
     constructor() {
@@ -1405,8 +1509,8 @@
     }
     
     reset() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
+      this.x = Math.random() * window.innerWidth;
+      this.y = Math.random() * window.innerHeight;
       this.size = Math.random() * 2.5 + 0.5;
       this.baseSpeedX = (Math.random() - 0.5) * 0.3;
       this.baseSpeedY = (Math.random() - 0.5) * 0.3;
@@ -1437,8 +1541,8 @@
       this.x += this.speedX;
       this.y += this.speedY;
       
-      if (this.x < -20 || this.x > canvas.width + 20 || 
-          this.y < -20 || this.y > canvas.height + 20) {
+      if (this.x < -20 || this.x > window.innerWidth + 20 || 
+          this.y < -20 || this.y > window.innerHeight + 20) {
         this.reset();
       }
     }
@@ -1464,7 +1568,7 @@
   }
   
   function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     
     particles.forEach(p => {
       p.update();
@@ -1502,18 +1606,26 @@
   let sparkles = [];
   
   function resizeFwCanvas() {
-    fwCanvas.width = window.innerWidth;
-    fwCanvas.height = window.innerHeight;
+    fwCanvas.width = window.innerWidth * dpr;
+    fwCanvas.height = window.innerHeight * dpr;
+    fwCanvas.style.width = window.innerWidth + 'px';
+    fwCanvas.style.height = window.innerHeight + 'px';
+    fwCtx.scale(dpr, dpr);
   }
   
   resizeFwCanvas();
-  window.addEventListener('resize', resizeFwCanvas);
+  window.addEventListener('resize', () => {
+    fwCanvas.width = window.innerWidth * dpr;
+    fwCanvas.height = window.innerHeight * dpr;
+    fwCtx.setTransform(1, 0, 0, 1, 0, 0);
+    fwCtx.scale(dpr, dpr);
+  });
   
   // 烟花上升的火箭
   class Firework {
     constructor(x, targetY, color) {
       this.x = x;
-      this.y = fwCanvas.height;
+      this.y = window.innerHeight;
       this.targetY = targetY;
       this.speed = 8 + Math.random() * 4;
       this.angle = -Math.PI / 2 + (Math.random() - 0.5) * 0.2;
@@ -1642,7 +1754,7 @@
   
   function animateFireworks() {
     fwCtx.fillStyle = 'rgba(10, 10, 26, 0.04)';
-    fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+    fwCtx.fillRect(0, 0, window.innerWidth, window.innerHeight);
     
     fireworks = fireworks.filter(fw => fw.update());
     fireworks.forEach(fw => fw.draw());
@@ -1657,8 +1769,8 @@
   
   // 发射烟花
   function launchFirework(x, y) {
-    const targetY = y || Math.random() * (fwCanvas.height * 0.4) + 50;
-    const startX = x || Math.random() * fwCanvas.width;
+    const targetY = y || Math.random() * (window.innerHeight * 0.4) + 50;
+    const startX = x || Math.random() * window.innerWidth;
     fireworks.push(new Firework(startX, targetY));
   }
   
@@ -2154,13 +2266,14 @@
   
   // "让我想想"按钮 - 会逃跑
   let noBtnEscapeCount = 0;
+  let noBtnCurrentX = 0;
+  let noBtnCurrentY = 0;
   noBtn.addEventListener('mouseenter', escapeNoBtn);
-  noBtn.addEventListener('touchstart', escapeNoBtn);
+  noBtn.addEventListener('touchstart', escapeNoBtn, { passive: true });
   noBtn.addEventListener('click', escapeNoBtn);
   
   function escapeNoBtn(e) {
-    if (e) {
-      e.preventDefault();
+    if (e && e.type === 'touchstart') {
       e.stopPropagation();
     }
     noBtnEscapeCount++;
@@ -2176,19 +2289,109 @@
     const texts = ['再想想？', '真的吗？', '确定吗？', '不要嘛~', '我知道你愿意的 😉'];
     noBtn.textContent = texts[Math.min(noBtnEscapeCount - 1, texts.length - 1)];
     
-    // 随机移动
-    const maxX = window.innerWidth - noBtn.offsetWidth - 40;
-    const maxY = 200;
-    const randomX = Math.random() * maxX - maxX / 2;
-    const randomY = Math.random() * maxY - maxY / 2;
+    // 获取按钮当前位置和视口信息
+    const btnRect = noBtn.getBoundingClientRect();
+    const btnWidth = btnRect.width;
+    const btnHeight = btnRect.height;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     
-    noBtn.style.transform = `translate(${randomX}px, ${randomY}px)`;
-    noBtn.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+    // 计算安全移动范围（确保按钮不会跑出屏幕）
+    const maxMoveLeft = btnRect.left - 20; // 左边最多移多少
+    const maxMoveRight = vw - btnRect.right - 20; // 右边最多移多少
+    const maxMoveUp = Math.min(btnRect.top - 100, 150); // 往上最多移
+    const maxMoveDown = Math.min(vh - btnRect.bottom - 40, 120); // 往下最多移
+    
+    // 随机选择方向，偏向左右移动
+    let randomX, randomY;
+    const direction = Math.random();
+    
+    if (direction < 0.6) {
+      // 左右移动为主
+      if (Math.random() > 0.5 && maxMoveRight > 30) {
+        randomX = Math.random() * maxMoveRight * 0.8 + 30;
+      } else if (maxMoveLeft > 30) {
+        randomX = -(Math.random() * maxMoveLeft * 0.8 + 30);
+      } else {
+        randomX = Math.random() * (maxMoveRight + maxMoveLeft) - maxMoveLeft;
+      }
+      randomY = (Math.random() - 0.5) * 60;
+    } else {
+      // 上下移动
+      randomX = (Math.random() - 0.5) * 100;
+      if (Math.random() > 0.5 && maxMoveUp > 30) {
+        randomY = -(Math.random() * maxMoveUp * 0.7 + 20);
+      } else if (maxMoveDown > 30) {
+        randomY = Math.random() * maxMoveDown * 0.7 + 20;
+      } else {
+        randomY = (Math.random() - 0.5) * 80;
+      }
+    }
+    
+    // 累加到当前偏移
+    noBtnCurrentX += randomX;
+    noBtnCurrentY += randomY;
+    
+    // 边界检查，确保按钮完全在屏幕内
+    const newLeft = btnRect.left + randomX;
+    const newRight = btnRect.right + randomX;
+    const newTop = btnRect.top + randomY;
+    const newBottom = btnRect.bottom + randomY;
+    
+    // 如果会超出边界，就往反方向弹
+    if (newLeft < 10 || newRight > vw - 10) {
+      noBtnCurrentX = -noBtnCurrentX * 0.5;
+    }
+    if (newTop < 80 || newBottom > vh - 20) {
+      noBtnCurrentY = -noBtnCurrentY * 0.5;
+    }
+    
+    noBtn.style.left = `${noBtnCurrentX}px`;
+    noBtn.style.top = `${noBtnCurrentY}px`;
   }
   
   function closeSuccess() {
     successOverlay.classList.remove('active');
   }
+  
+  // ==================== 背景音乐 ====================
+  const bgMusic = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  let musicPlaying = false;
+  
+  function toggleMusic() {
+    if (musicPlaying) {
+      bgMusic.pause();
+      musicBtn.classList.remove('playing');
+      musicPlaying = false;
+    } else {
+      bgMusic.volume = 0.5;
+      bgMusic.play().then(() => {
+        musicBtn.classList.add('playing');
+        musicPlaying = true;
+      }).catch(err => {
+        console.log('播放失败，需要用户交互');
+      });
+    }
+  }
+  
+  musicBtn.addEventListener('click', toggleMusic);
+  
+  // 第一次触摸/点击时尝试自动播放（符合移动端策略）
+  function tryAutoPlay() {
+    if (!musicPlaying) {
+      bgMusic.volume = 0.3;
+      bgMusic.play().then(() => {
+        musicBtn.classList.add('playing');
+        musicPlaying = true;
+      }).catch(() => {});
+    }
+    document.removeEventListener('touchstart', tryAutoPlay);
+    document.removeEventListener('click', tryAutoPlay);
+  }
+  
+  document.addEventListener('touchstart', tryAutoPlay, { once: true, passive: true });
+  document.addEventListener('click', tryAutoPlay, { once: true });
   
   // ==================== 触摸滑动提示隐藏 ====================
   let startY = 0;
